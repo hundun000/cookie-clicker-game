@@ -5,7 +5,7 @@ Cookie Clicker game written in Java with the [LibGDX](https://github.com/libgdx/
 
 ## How to run
 ### Download a release
-You can find the latest release [here]()
+You can find the latest release [here](https://github.com/RealCerus/cookie-clicker-game/releases/latest)
 
 ### Build the source yourself
 1. Clone this repo
