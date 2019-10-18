@@ -1,6 +1,7 @@
 # Cookie Clicker
 Cookie Clicker game written in Java with the [LibGDX](https://github.com/libgdx/libgdx/) library
-![Image](https://prnt.sc/pl5ov4)
+
+![Image](https://i.imgur.com/gV6Bo2F.png)
 
 ## How to run
 ### Download a release
