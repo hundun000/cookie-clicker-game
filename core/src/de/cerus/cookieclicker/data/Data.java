@@ -32,7 +32,7 @@ public class Data {
     private static File file = new File(System.getenv("APPDATA")+"//CookieClicker//data.json");;
 
     public static Object[] loadProgress() {
-        if(!file.exists()) return new Object[]{0, 0, 0, 0};
+        if(!file.exists()) return new Object[]{0, 0, 0, 0, 0};
 
         try {
             JsonReader reader = new JsonReader();
