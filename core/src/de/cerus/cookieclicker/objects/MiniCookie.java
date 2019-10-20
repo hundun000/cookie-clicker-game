@@ -42,11 +42,12 @@ public class MiniCookie implements Disposable {
 
     public MiniCookie(OrthographicCamera camera) {
         this.camera = camera;
-        y = camera.viewportHeight + 25;
+        y = camera.viewportHeight + WIDTH;
         x = MathUtils.random(5, camera.viewportWidth - 5 - WIDTH);
         rotation = MathUtils.random(0.0f, 360.0f);
         speed = MathUtils.random(0.6f, 2f);
-        texture = new Texture(Gdx.files.internal("cookie.png"));
+        String texture_file = ((MathUtils.random(0,1) > 0.5) ? "cookie.png" : "chocolate_cookie.png");
+        texture = new Texture(Gdx.files.internal(texture_file));
     }
 
     public void render(CookieClickerGame game) {
