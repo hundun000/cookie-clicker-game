@@ -28,22 +28,18 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Ellipse;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.math.*;
 import de.cerus.cookieclicker.CookieClickerGame;
 import de.cerus.cookieclicker.data.Data;
-import de.cerus.cookieclicker.fixes.CappedArray;
 import de.cerus.cookieclicker.fixes.CustomShapeRenderer;
-import de.cerus.cookieclicker.objects.MiniCookie;
 import de.cerus.cookieclicker.objects.Shop;
 import de.cerus.cookieclicker.util.DisposeUtil;
 import de.cerus.cookieclicker.util.FontUtil;
+import de.cerus.cookieclicker.util.Triplet;
 
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -72,7 +68,11 @@ public class GameScreen implements Screen {
     private double cookiesPerSecond;
     private int clickerAnimationIndex;
 
-    private CappedArray<MiniCookie> miniCookies;
+    private Queue<Triplet> cookies = new ConcurrentLinkedQueue<>();
+    private int amountMiniCookies;
+    private static int MINICOOKIE_WIDTH = 25;
+    private static int MINICOOKIE_HEIGHT = 25;
+    private static float MINICOOKIE_THRESHOLD = 1000;
 
     public GameScreen(CookieClickerGame game) {
         this.game = game;
@@ -88,7 +88,6 @@ public class GameScreen implements Screen {
         this.shopRepresentation = new Rectangle();
 
         this.shapeRenderer = new CustomShapeRenderer();
-        this.miniCookies = new CappedArray<>(75);
     }
 
     @Override
@@ -112,7 +111,7 @@ public class GameScreen implements Screen {
 
         clickerAnimationIndex = -1;
 
-        ScheduledExecutorService service = Executors.newScheduledThreadPool(0);
+        ScheduledExecutorService service = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() / 4);
         service.scheduleAtFixedRate(new Runnable() {
             private int index = 0;
             private long lastCookies = 0;
@@ -122,17 +121,20 @@ public class GameScreen implements Screen {
                 cookiesPerSecond = shop.getCookies() - lastCookies;
                 lastCookies = shop.getCookies();
 
-                if (index >= Shop.MAX_CLICKER) index = 0;
+                if (index >= Shop.MAX_CLICKER) {
+                    index = 0;
+                }
+
                 clickerAnimationIndex = index;
 
                 if ((index + 1) <= shop.getClicker()) {
                     shop.setCookies(shop.getCookies() + 1);
-                    Gdx.app.postRunnable(() -> miniCookies.add(new MiniCookie(camera)));
                 }
 
                 index++;
             }
         }, 1, 1, TimeUnit.SECONDS);
+
         service.scheduleAtFixedRate(() -> {
             for (int i = 0; i < shop.getGrandmas(); i++) {
                 try {
@@ -141,9 +143,10 @@ public class GameScreen implements Screen {
                     e.printStackTrace();
                 }
                 shop.setCookies(shop.getCookies() + 1);
-                Gdx.app.postRunnable(() -> miniCookies.add(new MiniCookie(camera)));
+                addCookie();
             }
         }, 500, 500, TimeUnit.MILLISECONDS);
+
         service.scheduleAtFixedRate(() -> {
             for (int i = 0; i < shop.getBakeries(); i++) {
                 try {
@@ -152,9 +155,9 @@ public class GameScreen implements Screen {
                     e.printStackTrace();
                 }
                 shop.setCookies(shop.getCookies() + 4);
-                Gdx.app.postRunnable(() -> miniCookies.add(new MiniCookie(camera)));
             }
         }, 500, 500, TimeUnit.MILLISECONDS);
+
         service.scheduleAtFixedRate(() -> {
             for (int i = 0; i < shop.getFactories(); i++) {
                 try {
@@ -163,22 +166,12 @@ public class GameScreen implements Screen {
                     e.printStackTrace();
                 }
                 shop.setCookies(shop.getCookies() + 10);
-                Gdx.app.postRunnable(() -> miniCookies.add(new MiniCookie(camera)));
             }
         }, 500, 500, TimeUnit.MILLISECONDS);
     }
 
-    //private float b = 0.0f;
-    //private boolean negate = false;
-
     @Override
     public void render(float delta) {
-    /*    if (negate) b -= 0.0005f;
-        else b += 0.0005f;
-
-        if (b >= 0.1f || b <= -0.2f)
-            negate = !negate;*/
-
         Gdx.gl.glClearColor(0.21f/* + b*/, 0.53f/* + b*/, 0.70f/* + b*/, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -187,9 +180,7 @@ public class GameScreen implements Screen {
 
         // Render mini cookies
         game.getBatch().begin();
-        for (MiniCookie miniCookie : miniCookies) {
-            miniCookie.render(game);
-        }
+        renderCookies();
         game.getBatch().end();
 
         renderClicker();
@@ -219,7 +210,7 @@ public class GameScreen implements Screen {
         game.getFont().draw(game.getBatch(), "Cookies per second: " + cookiesPerSecond,
                 camera.position.x - (camera.viewportWidth / 2f) + 10, camera.position.y -
                         (camera.viewportHeight / 2f) + 100);
-        game.getFont().draw(game.getBatch(), "Rendered cookies: " + miniCookies.size,
+        game.getFont().draw(game.getBatch(), "Rendered cookies: " + amountMiniCookies,
                 camera.position.x - (camera.viewportWidth / 2f) + 10, camera.position.y -
                         (camera.viewportHeight / 2f) + 70);
         game.getFont().draw(game.getBatch(), "FPS: " + Gdx.graphics.getFramesPerSecond(),
@@ -234,12 +225,13 @@ public class GameScreen implements Screen {
 
         shop.render(game, camera);
 
-        for (MiniCookie miniCookie : new Array<>(miniCookies)) {
-            if (!miniCookie.isVisible()) {
-                miniCookie.dispose();
-                miniCookies.removeValue(miniCookie, false);
+        // Remove disappeared cookies
+        cookies.forEach(t -> {
+            if (t.getY() <= -MINICOOKIE_HEIGHT) {
+                cookies.remove(t);
+                amountMiniCookies--;
             }
-        }
+        });
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
                 && cookieRepresentation.contains(getUnprojectedScreenCoords(100))
@@ -248,7 +240,7 @@ public class GameScreen implements Screen {
             COOKIE_WIDTH -= 10;
 
             shop.setCookies(shop.getCookies() + 1);
-            miniCookies.add(new MiniCookie(camera));
+            addCookie();
         } else if (!Gdx.input.isButtonPressed(Input.Buttons.LEFT)
                 && COOKIE_WIDTH < 200 && COOKIE_HEIGHT < 200
                 && !shop.isVisible()) {
@@ -273,8 +265,10 @@ public class GameScreen implements Screen {
 
     private float generalRotation = 0;
 
-    public void renderClicker() {
-        if (shop.getClicker() == 0) return;
+    private void renderClicker() {
+        if (shop.getClicker() == 0) {
+            return;
+        }
 
         generalRotation += 0.1f;
         int row = 0;
@@ -339,6 +333,21 @@ public class GameScreen implements Screen {
         }
 
         return angle;
+    }
+
+    private void renderCookies() {
+        cookies.forEach(t -> {
+            game.getBatch().draw(cookieTexture, t.getX(), t.getY(), MINICOOKIE_WIDTH, MINICOOKIE_HEIGHT);
+            t.setY(t.getY() - 0.4f);
+            t.setZ((t.getZ() + 0.25f) % 360.0f);
+        });
+    }
+
+    private void addCookie() {
+        if (amountMiniCookies <= MINICOOKIE_THRESHOLD) {
+            cookies.add(new Triplet(MathUtils.random(5, camera.viewportWidth - 30), camera.viewportHeight + MINICOOKIE_HEIGHT, MathUtils.random(0.0f, 360.0f)));
+            amountMiniCookies++;
+        }
     }
 
     @Override

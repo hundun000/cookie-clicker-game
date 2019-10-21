@@ -31,41 +31,6 @@ public class CappedArray<T> extends Array<T> {
         this.cap = cap;
     }
 
-    public CappedArray(int capacity, long cap) {
-        super(capacity);
-        this.cap = cap;
-    }
-
-    public CappedArray(boolean ordered, int capacity, long cap) {
-        super(ordered, capacity);
-        this.cap = cap;
-    }
-
-    public CappedArray(boolean ordered, int capacity, Class arrayType, long cap) {
-        super(ordered, capacity, arrayType);
-        this.cap = cap;
-    }
-
-    public CappedArray(Class arrayType, long cap) {
-        super(arrayType);
-        this.cap = cap;
-    }
-
-    public CappedArray(Array<? extends T> array, long cap) {
-        super(array);
-        this.cap = cap;
-    }
-
-    public CappedArray(T[] array, long cap) {
-        super(array);
-        this.cap = cap;
-    }
-
-    public CappedArray(boolean ordered, T[] array, int start, int count, long cap) {
-        super(ordered, array, start, count);
-        this.cap = cap;
-    }
-
     @Override
     public void add(T value) {
         if (size >= cap) {
