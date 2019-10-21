@@ -55,12 +55,18 @@ public class MenuScreen implements Screen {
     public void show() {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         menu.setOnAction(s -> {
-            if (s.equals("Play")) {
-                game.setScreen(new GameScreen(game));
-            } else if (s.equals("Settings")) {
-                game.setScreen(new SettingsScreen(game));
-            } else if (s.equals("Exit")) {
-                game.setScreen(new ExitScreen(game));
+            switch (s.toLowerCase()) {
+                case "play":
+                    game.setScreen(new GameScreen(game));
+                    break;
+                case "settings":
+                    game.setScreen(new SettingsScreen(game));
+                    break;
+                case "exit":
+                    game.setScreen(new ExitScreen(game));
+                    break;
+                default:
+                    break;
             }
         });
     }
