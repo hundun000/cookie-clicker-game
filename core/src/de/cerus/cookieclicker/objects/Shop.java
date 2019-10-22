@@ -69,10 +69,13 @@ public class Shop implements Disposable {
     private long factories = 0;
 
     public void render(CookieClickerGame game, OrthographicCamera camera) {
-        if (!isVisible()) return;
+        if (!visible) {
+            return;
+        }
 
-        if (animationAlpha > 0)
+        if (animationAlpha > 0) {
             animationAlpha -= 0.10;
+        }
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -294,13 +297,15 @@ public class Shop implements Disposable {
         return new Vector2(screenCoords.x - minus, screenCoords.y - minus);
     }
 
-    public boolean isVisible() {
-        return visible;
+    public boolean isNotVisible() {
+        return !visible;
     }
 
     public void setVisible(boolean visible) {
         this.visible = visible;
-        if (visible) animationAlpha = 1.0f;
+        if (visible) {
+            animationAlpha = 1.0f;
+        }
     }
 
     @Override

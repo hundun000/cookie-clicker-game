@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class GameScreen implements Screen {
 
@@ -72,7 +73,11 @@ public class GameScreen implements Screen {
     private int amountMiniCookies;
     private static int MINICOOKIE_WIDTH = 25;
     private static int MINICOOKIE_HEIGHT = 25;
-    private static float MINICOOKIE_THRESHOLD = 1000;
+    private static float MINICOOKIE_THRESHOLD = 75;
+    private static float MINICOOKIE_SPEED = 0.2f;
+    private static float MINICOOKIE_ROTATION_SPEED = 0.25f;
+
+    private float generalRotation = 0;
 
     public GameScreen(CookieClickerGame game) {
         this.game = game;
@@ -94,20 +99,7 @@ public class GameScreen implements Screen {
     public void show() {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        Object[] objects = Data.loadProgress();
-        shop.setCookies(objects[0] instanceof Long ? (Long) objects[0] : (Integer) objects[0]);
-        shop.setClicker(objects[1] instanceof Long ? (Long) objects[1] : (Integer) objects[1]);
-        shop.setGrandmas(objects[2] instanceof Long ? (Long) objects[2] : (Integer) objects[2]);
-        shop.setBakeries(objects[3] instanceof Long ? (Long) objects[3] : (Integer) objects[3]);
-        shop.setFactories(objects[4] instanceof Long ? (Long) objects[4] : (Integer) objects[4]);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> Data.saveProgress(
-                shop.getCookies(),
-                shop.getClicker(),
-                shop.getGrandmas(),
-                shop.getBakeries(),
-                shop.getFactories()
-        )));
+        loadDataForShop();
 
         clickerAnimationIndex = -1;
 
@@ -134,40 +126,9 @@ public class GameScreen implements Screen {
                 index++;
             }
         }, 1, 1, TimeUnit.SECONDS);
-
-        service.scheduleAtFixedRate(() -> {
-            for (int i = 0; i < shop.getGrandmas(); i++) {
-                try {
-                    Thread.sleep(25);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                shop.setCookies(shop.getCookies() + 1);
-                addCookie();
-            }
-        }, 500, 500, TimeUnit.MILLISECONDS);
-
-        service.scheduleAtFixedRate(() -> {
-            for (int i = 0; i < shop.getBakeries(); i++) {
-                try {
-                    Thread.sleep(25);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                shop.setCookies(shop.getCookies() + 4);
-            }
-        }, 500, 500, TimeUnit.MILLISECONDS);
-
-        service.scheduleAtFixedRate(() -> {
-            for (int i = 0; i < shop.getFactories(); i++) {
-                try {
-                    Thread.sleep(25);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                shop.setCookies(shop.getCookies() + 10);
-            }
-        }, 500, 500, TimeUnit.MILLISECONDS);
+        scheduleService(service, shop.getGrandmas(), 1);
+        scheduleService(service, shop.getBakeries(), 4);
+        scheduleService(service, shop.getFactories(), 10);
     }
 
     @Override
@@ -235,7 +196,7 @@ public class GameScreen implements Screen {
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
                 && cookieRepresentation.contains(getUnprojectedScreenCoords(100))
-                && !shop.isVisible()) {
+                && shop.isNotVisible()) {
             COOKIE_HEIGHT -= 10;
             COOKIE_WIDTH -= 10;
 
@@ -243,16 +204,48 @@ public class GameScreen implements Screen {
             addCookie();
         } else if (!Gdx.input.isButtonPressed(Input.Buttons.LEFT)
                 && COOKIE_WIDTH < 200 && COOKIE_HEIGHT < 200
-                && !shop.isVisible()) {
+                && shop.isNotVisible()) {
             COOKIE_WIDTH = 200;
             COOKIE_HEIGHT = 200;
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
                 && shopRepresentation.contains(getUnprojectedScreenCoords(0))
-                && !shop.isVisible()) {
-            shop.setVisible(!shop.isVisible());
+                && shop.isNotVisible()) {
+            shop.setVisible(shop.isNotVisible());
         }
+    }
+
+    private void loadDataForShop() {
+        Object[] objects = Data.loadProgress();
+        shop.setCookies(objects[0] instanceof Long ? (Long) objects[0] : (Integer) objects[0]);
+        shop.setClicker(objects[1] instanceof Long ? (Long) objects[1] : (Integer) objects[1]);
+        shop.setGrandmas(objects[2] instanceof Long ? (Long) objects[2] : (Integer) objects[2]);
+        shop.setBakeries(objects[3] instanceof Long ? (Long) objects[3] : (Integer) objects[3]);
+        shop.setFactories(objects[4] instanceof Long ? (Long) objects[4] : (Integer) objects[4]);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> Data.saveProgress(
+                shop.getCookies(),
+                shop.getClicker(),
+                shop.getGrandmas(),
+                shop.getBakeries(),
+                shop.getFactories()
+        )));
+    }
+
+    private void scheduleService(ScheduledExecutorService service, long amount, int increase) {
+        service.scheduleAtFixedRate(() -> {
+            for (int i = 0; i < amount; i++) {
+                try {
+                    Thread.sleep(25);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                shop.setCookies(shop.getCookies() + increase);
+                addCookie();
+            }
+        }, 500, 500, TimeUnit.MILLISECONDS);
     }
 
     private Vector2 getUnprojectedScreenCoords(float minus) {
@@ -263,7 +256,15 @@ public class GameScreen implements Screen {
         return new Vector2(screenCoords.x - minus, screenCoords.y - minus);
     }
 
-    private float generalRotation = 0;
+    private float getAngle(Vector2 source, Vector2 target) {
+        float angle = (float) Math.toDegrees(Math.atan2(target.y - source.y, target.x - source.x));
+
+        if (angle < 0) {
+            angle += 360;
+        }
+
+        return angle;
+    }
 
     private void renderClicker() {
         if (shop.getClicker() == 0) {
@@ -274,10 +275,14 @@ public class GameScreen implements Screen {
         int row = 0;
 
         for (int i = 0; i < shop.getClicker(); i++) {
-            if (i == 18 || i == 36) row++;
+            if (i == 18 || i == 36) {
+                row++;
+            }
 
             float rotation = i * 20 + generalRotation;
-            if (rotation > 360) rotation = rotation % 360;
+            if (rotation > 360) {
+                rotation = rotation % 360;
+            }
 
             double angle = Math.toRadians(rotation);
 
@@ -325,21 +330,11 @@ public class GameScreen implements Screen {
         }
     }
 
-    private float getAngle(Vector2 source, Vector2 target) {
-        float angle = (float) Math.toDegrees(Math.atan2(target.y - source.y, target.x - source.x));
-
-        if (angle < 0) {
-            angle += 360;
-        }
-
-        return angle;
-    }
-
     private void renderCookies() {
         cookies.forEach(t -> {
             game.getBatch().draw(cookieTexture, t.getX(), t.getY(), MINICOOKIE_WIDTH, MINICOOKIE_HEIGHT);
-            t.setY(t.getY() - 0.4f);
-            t.setZ((t.getZ() + 0.25f) % 360.0f);
+            t.setY(t.getY() - MINICOOKIE_SPEED);
+            t.setZ((t.getZ() + MINICOOKIE_ROTATION_SPEED) % 360.0f);
         });
     }
 
