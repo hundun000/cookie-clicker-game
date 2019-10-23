@@ -20,7 +20,6 @@
 
 package de.cerus.cookieclicker.data;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
@@ -29,16 +28,18 @@ import java.io.*;
 
 public class Data {
 
-    private static File file = new File(System.getenv("APPDATA")+"//CookieClicker//data.json");;
+    private static File file = new File(String.format("%s//CookieClicker//data.json", System.getenv("APPDATA")));;
 
     public static Object[] loadProgress() {
-        if(!file.exists()) return new Object[]{0, 0, 0, 0, 0};
+        if (!file.exists()) {
+            return new Object[]{0, 0, 0, 0, 0};
+        }
 
         try {
             JsonReader reader = new JsonReader();
             JsonValue value = reader.parse(new FileInputStream(file));
 
-            return new Object[]{
+            return new Object[] {
                     value.get("cookies") == null ? 0 : value.get("cookies").asLong(),
                     value.get("clickers") == null ? 0 : value.get("clickers").asLong(),
                     value.get("grandmas") == null ? 0 : value.get("grandmas").asLong(),

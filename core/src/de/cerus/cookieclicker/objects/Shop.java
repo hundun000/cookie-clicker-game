@@ -30,7 +30,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import de.cerus.cookieclicker.CookieClickerGame;
 import de.cerus.cookieclicker.fixes.CustomShapeRenderer;
-import de.cerus.cookieclicker.util.DisposeUtil;
 import de.cerus.cookieclicker.util.FontUtil;
 
 public class Shop implements Disposable {
@@ -69,10 +68,13 @@ public class Shop implements Disposable {
     private long factories = 0;
 
     public void render(CookieClickerGame game, OrthographicCamera camera) {
-        if (!isVisible()) return;
+        if (!visible) {
+            return;
+        }
 
-        if (animationAlpha > 0)
+        if (animationAlpha > 0) {
             animationAlpha -= 0.10;
+        }
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -294,18 +296,15 @@ public class Shop implements Disposable {
         return new Vector2(screenCoords.x - minus, screenCoords.y - minus);
     }
 
-    public boolean isVisible() {
-        return visible;
+    public boolean isNotVisible() {
+        return !visible;
     }
 
     public void setVisible(boolean visible) {
         this.visible = visible;
-        if (visible) animationAlpha = 1.0f;
-    }
-
-    @Override
-    public void dispose() {
-        DisposeUtil.dispose(this);
+        if (visible) {
+            animationAlpha = 1.0f;
+        }
     }
 
     public long getClicker() {
@@ -346,5 +345,12 @@ public class Shop implements Disposable {
 
     public void setFactories(long factories) {
         this.factories = factories;
+    }
+
+    @Override
+    public void dispose() {
+        shapeRenderer.dispose();
+        closeTexture.dispose();
+        buyTexture.dispose();
     }
 }
