@@ -1,17 +1,17 @@
-package de.cerus.cookieclicker.util;
+package de.cerus.cookieclicker.objects;
 
-public class Triplet {
+public class MiniCookie {
 
     private float x;
 
     private float y;
 
-    private float z;
+    private float rotation;
 
-    public Triplet(float x, float y, float z) {
+    public MiniCookie(float x, float y, float rotation) {
         this.x = x;
         this.y = y;
-        this.z = z;
+        this.rotation = rotation;
     }
 
     public float getX() {
@@ -30,11 +30,11 @@ public class Triplet {
         this.y = y;
     }
 
-    public float getZ() {
-        return z;
+    public float getRotation() {
+        return rotation;
     }
 
-    public void setZ(float z) {
-        this.z = z;
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
     }
 }

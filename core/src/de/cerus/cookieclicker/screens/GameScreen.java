@@ -32,9 +32,9 @@ import com.badlogic.gdx.math.*;
 import de.cerus.cookieclicker.CookieClickerGame;
 import de.cerus.cookieclicker.data.Data;
 import de.cerus.cookieclicker.fixes.CustomShapeRenderer;
+import de.cerus.cookieclicker.objects.MiniCookie;
 import de.cerus.cookieclicker.objects.Shop;
 import de.cerus.cookieclicker.util.FontUtil;
-import de.cerus.cookieclicker.util.Triplet;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -67,7 +67,7 @@ public class GameScreen implements Screen {
     private double cookiesPerSecond;
     private int clickerAnimationIndex;
 
-    private Queue<Triplet> cookies = new ConcurrentLinkedQueue<>();
+    private Queue<MiniCookie> cookies = new ConcurrentLinkedQueue<>();
     private int amountMiniCookies;
     private static int MINICOOKIE_WIDTH = 25;
     private static int MINICOOKIE_HEIGHT = 25;
@@ -333,13 +333,13 @@ public class GameScreen implements Screen {
         cookies.forEach(t -> {
             game.getBatch().draw(cookieTexture, t.getX(), t.getY(), MINICOOKIE_WIDTH, MINICOOKIE_HEIGHT);
             t.setY(t.getY() - MINICOOKIE_SPEED);
-            t.setZ((t.getZ() + MINICOOKIE_ROTATION_SPEED) % 360.0f);
+            t.setRotation((t.getRotation() + MINICOOKIE_ROTATION_SPEED) % 360.0f);
         });
     }
 
     private void addCookie() {
         if (amountMiniCookies <= MINICOOKIE_THRESHOLD) {
-            cookies.add(new Triplet(MathUtils.random(5, camera.viewportWidth - 30), camera.viewportHeight + MINICOOKIE_HEIGHT, MathUtils.random(0.0f, 360.0f)));
+            cookies.add(new MiniCookie(MathUtils.random(5, camera.viewportWidth - 30), camera.viewportHeight + MINICOOKIE_HEIGHT, MathUtils.random(0.0f, 360.0f)));
             amountMiniCookies++;
         }
     }
