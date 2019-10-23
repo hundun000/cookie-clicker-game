@@ -1,5 +1,4 @@
 language: java
 script:
-  - chmod +x ./gradlew build connectedCheck
   - ./gradlew dist
 after_failure: ./gradlew dist
