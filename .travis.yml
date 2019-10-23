@@ -12,5 +12,3 @@ deploy:
   api_key: "50c8f9d1bb11979eabb9590125e1f319d40946ae"
   file: "/desktop/build/libs/desktop-1.0.jar"
   skip_cleanup: true
-  on:
-    tags: true
