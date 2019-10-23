@@ -33,7 +33,6 @@ import de.cerus.cookieclicker.CookieClickerGame;
 import de.cerus.cookieclicker.data.Data;
 import de.cerus.cookieclicker.fixes.CustomShapeRenderer;
 import de.cerus.cookieclicker.objects.Shop;
-import de.cerus.cookieclicker.util.DisposeUtil;
 import de.cerus.cookieclicker.util.FontUtil;
 import de.cerus.cookieclicker.util.Triplet;
 
@@ -43,7 +42,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 public class GameScreen implements Screen {
 
@@ -74,7 +72,7 @@ public class GameScreen implements Screen {
     private static int MINICOOKIE_WIDTH = 25;
     private static int MINICOOKIE_HEIGHT = 25;
     private static float MINICOOKIE_THRESHOLD = 75;
-    private static float MINICOOKIE_SPEED = 0.2f;
+    private static float MINICOOKIE_SPEED = 0.8f;
     private static float MINICOOKIE_ROTATION_SPEED = 0.25f;
 
     private float generalRotation = 0;
@@ -118,6 +116,8 @@ public class GameScreen implements Screen {
                 }
 
                 clickerAnimationIndex = index;
+
+                addCookie();
 
                 if ((index + 1) <= shop.getClicker()) {
                     shop.setCookies(shop.getCookies() + 1);
@@ -243,7 +243,6 @@ public class GameScreen implements Screen {
                 }
 
                 shop.setCookies(shop.getCookies() + increase);
-                addCookie();
             }
         }, 500, 500, TimeUnit.MILLISECONDS);
     }
@@ -367,6 +366,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        DisposeUtil.dispose(this);
+        shapeRenderer.dispose();
+        shop.dispose();
+        cookieTexture.dispose();
+        clickerTexture.dispose();
+        shopTexture.dispose();
     }
 }

@@ -7,11 +7,12 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import de.cerus.cookieclicker.screens.GameScreen;
 import de.cerus.cookieclicker.screens.MenuScreen;
-import de.cerus.cookieclicker.util.DisposeUtil;
 import de.cerus.cookieclicker.util.FontUtil;
 
 public class CookieClickerGame extends Game {
+
     private SpriteBatch batch;
+
     private BitmapFont font;
 
     @Override
@@ -37,7 +38,8 @@ public class CookieClickerGame extends Game {
     @Override
     public void dispose() {
         super.dispose();
-        DisposeUtil.dispose(this);
+        batch.dispose();
+        font.dispose();
     }
 
     public SpriteBatch getBatch() {

@@ -30,7 +30,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import de.cerus.cookieclicker.CookieClickerGame;
 import de.cerus.cookieclicker.fixes.CustomShapeRenderer;
-import de.cerus.cookieclicker.util.DisposeUtil;
 import de.cerus.cookieclicker.util.FontUtil;
 
 public class Shop implements Disposable {
@@ -308,11 +307,6 @@ public class Shop implements Disposable {
         }
     }
 
-    @Override
-    public void dispose() {
-        DisposeUtil.dispose(this);
-    }
-
     public long getClicker() {
         return clicker;
     }
@@ -351,5 +345,12 @@ public class Shop implements Disposable {
 
     public void setFactories(long factories) {
         this.factories = factories;
+    }
+
+    @Override
+    public void dispose() {
+        shapeRenderer.dispose();
+        closeTexture.dispose();
+        buyTexture.dispose();
     }
 }
