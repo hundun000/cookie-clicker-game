@@ -1,2 +1,3 @@
 language: java
 script: ./gradlew dist
+after_failure: ./gradlew dist
