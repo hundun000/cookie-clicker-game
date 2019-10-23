@@ -1,1 +1,2 @@
 language: java
+script: bundle exec ./gradlew dist
