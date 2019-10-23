@@ -187,9 +187,9 @@ public class GameScreen implements Screen {
         shop.render(game, camera);
 
         // Remove disappeared cookies
-        cookies.forEach(t -> {
-            if (t.getY() <= -MINICOOKIE_HEIGHT) {
-                cookies.remove(t);
+        cookies.forEach(miniCookie -> {
+            if (miniCookie.getY() <= -MINICOOKIE_HEIGHT) {
+                cookies.remove(miniCookie);
                 amountMiniCookies--;
             }
         });
@@ -330,10 +330,10 @@ public class GameScreen implements Screen {
     }
 
     private void renderCookies() {
-        cookies.forEach(t -> {
-            game.getBatch().draw(cookieTexture, t.getX(), t.getY(), MINICOOKIE_WIDTH, MINICOOKIE_HEIGHT);
-            t.setY(t.getY() - MINICOOKIE_SPEED);
-            t.setRotation((t.getRotation() + MINICOOKIE_ROTATION_SPEED) % 360.0f);
+        cookies.forEach(miniCookie -> {
+            game.getBatch().draw(cookieTexture, miniCookie.getX(), miniCookie.getY(), MINICOOKIE_WIDTH, MINICOOKIE_HEIGHT);
+            miniCookie.setY(miniCookie.getY() - MINICOOKIE_SPEED);
+            miniCookie.setRotation((miniCookie.getRotation() + MINICOOKIE_ROTATION_SPEED) % 360.0f);
         });
     }
 
