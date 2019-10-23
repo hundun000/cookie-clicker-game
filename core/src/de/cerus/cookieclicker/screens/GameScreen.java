@@ -71,7 +71,7 @@ public class GameScreen implements Screen {
     private int amountMiniCookies;
     private static int MINICOOKIE_WIDTH = 25;
     private static int MINICOOKIE_HEIGHT = 25;
-    private static float MINICOOKIE_THRESHOLD = 75;
+    private static float MINICOOKIE_THRESHOLD = -1;
     private static float MINICOOKIE_SPEED = 0.8f;
     private static float MINICOOKIE_ROTATION_SPEED = 0.25f;
 
@@ -243,6 +243,7 @@ public class GameScreen implements Screen {
                 }
 
                 shop.setCookies(shop.getCookies() + increase);
+                addCookie();
             }
         }, 500, 500, TimeUnit.MILLISECONDS);
     }
@@ -338,7 +339,7 @@ public class GameScreen implements Screen {
     }
 
     private void addCookie() {
-        if (amountMiniCookies <= MINICOOKIE_THRESHOLD) {
+        if (MINICOOKIE_THRESHOLD == -1 || amountMiniCookies <= MINICOOKIE_THRESHOLD) {
             cookies.add(new MiniCookie(MathUtils.random(5, camera.viewportWidth - 30), camera.viewportHeight + MINICOOKIE_HEIGHT, MathUtils.random(0.0f, 360.0f)));
             amountMiniCookies++;
         }
