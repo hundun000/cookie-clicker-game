@@ -23,12 +23,10 @@ package de.cerus.cookieclicker.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.Array;
 import de.cerus.cookieclicker.CookieClickerGame;
 import de.cerus.cookieclicker.components.Menu;
-import de.cerus.cookieclicker.util.DisposeUtil;
 
 public class MenuScreen implements Screen {
 
@@ -55,12 +53,16 @@ public class MenuScreen implements Screen {
     public void show() {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         menu.setOnAction(s -> {
-            if (s.equals("Play")) {
-                game.setScreen(new GameScreen(game));
-            } else if (s.equals("Settings")) {
-                game.setScreen(new SettingsScreen(game));
-            } else if (s.equals("Exit")) {
-                game.setScreen(new ExitScreen(game));
+            switch (s) {
+                case "Play":
+                    game.setScreen(new GameScreen(game));
+                    break;
+                case "Settings":
+                    game.setScreen(new SettingsScreen(game));
+                    break;
+                case "Exit":
+                    game.setScreen(new ExitScreen(game));
+                    break;
             }
         });
     }
@@ -85,22 +87,14 @@ public class MenuScreen implements Screen {
     }
 
     @Override
-    public void pause() {
-
-    }
+    public void pause() {}
 
     @Override
-    public void resume() {
-
-    }
+    public void resume() {}
 
     @Override
-    public void hide() {
-
-    }
+    public void hide() {}
 
     @Override
-    public void dispose() {
-        DisposeUtil.dispose(this);
-    }
+    public void dispose() {}
 }
