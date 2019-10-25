@@ -25,8 +25,6 @@ task debug(dependsOn: classes, type: JavaExec) {
 }
 
 task dist(type: Jar) {
- //   archivesBaseName = "CookieClicker-${System.env.GIT_BRANCH_CC}-${System.env.J_BUILD_ID}"
-    archivesBaseName = "CookieClicker-" + System.getenv("GIT_BRANCH_CC") + "-" + System.getenv("J_BUILD_ID")
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
