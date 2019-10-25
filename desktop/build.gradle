@@ -4,6 +4,8 @@ sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.main.resources.srcDirs = ["../core/assets"]
 
+archivesBaseName = "CookieClicker-$BUILD_ID"
+
 project.ext.mainClassName = "de.cerus.cookieclicker.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets")
 
