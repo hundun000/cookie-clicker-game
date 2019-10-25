@@ -43,6 +43,7 @@ public class MenuScreen implements Screen {
             {
                 add("Play");
                 add("Settings");
+                add("Credits");
                 add("Exit");
             }
         });
@@ -59,6 +60,9 @@ public class MenuScreen implements Screen {
                     break;
                 case "Settings":
                     game.setScreen(new SettingsScreen(game));
+                    break;
+                case "Credits":
+                    game.setScreen(new CreditsScreen(game));
                     break;
                 case "Exit":
                     game.setScreen(new ExitScreen(game));

@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import de.cerus.cookieclicker.screens.GameScreen;
 import de.cerus.cookieclicker.screens.MenuScreen;
+import de.cerus.cookieclicker.util.ContributorUtil;
 import de.cerus.cookieclicker.util.FontUtil;
 
 public class CookieClickerGame extends Game {
@@ -18,6 +19,7 @@ public class CookieClickerGame extends Game {
     @Override
     public void create() {
         FontUtil.init();
+        ContributorUtil.load();
 
         batch = new SpriteBatch();
         font = FontUtil.KOMIKA;
