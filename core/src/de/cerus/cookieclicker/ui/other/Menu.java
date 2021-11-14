@@ -18,7 +18,7 @@
  *
  */
 
-package de.cerus.cookieclicker.components;
+package de.cerus.cookieclicker.ui.other;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;

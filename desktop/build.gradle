@@ -7,6 +7,10 @@ sourceSets.main.resources.srcDirs = ["../core/assets"]
 project.ext.mainClassName = "de.cerus.cookieclicker.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets")
 
+eclipse.project {
+    name = appName + "-desktop"
+}
+
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath

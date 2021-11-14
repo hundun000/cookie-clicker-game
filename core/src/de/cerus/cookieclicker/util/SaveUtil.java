@@ -18,7 +18,7 @@
  *
  */
 
-package de.cerus.cookieclicker.data;
+package de.cerus.cookieclicker.util;
 
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
@@ -26,7 +26,7 @@ import com.badlogic.gdx.utils.JsonWriter;
 
 import java.io.*;
 
-public class Data {
+public class SaveUtil {
 
     private static File file = new File(String.format("%s//CookieClicker//data.json", System.getenv("APPDATA")));;
 

@@ -5,10 +5,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import de.cerus.cookieclicker.screens.GameScreen;
-import de.cerus.cookieclicker.screens.MenuScreen;
+
+import de.cerus.cookieclicker.ui.screens.CreditsScreen;
+import de.cerus.cookieclicker.ui.screens.ExitScreen;
+import de.cerus.cookieclicker.ui.screens.GameScreen;
+import de.cerus.cookieclicker.ui.screens.MenuScreen;
+import de.cerus.cookieclicker.ui.screens.ScreenContext;
+import de.cerus.cookieclicker.ui.screens.SettingsScreen;
 import de.cerus.cookieclicker.util.ContributorUtil;
 import de.cerus.cookieclicker.util.FontUtil;
+import lombok.Getter;
 
 public class CookieClickerGame extends Game {
 
@@ -16,6 +22,11 @@ public class CookieClickerGame extends Game {
 
     private BitmapFont font;
 
+    @Getter
+    ScreenContext screenContext;
+    
+    
+    
     @Override
     public void create() {
         FontUtil.init();
@@ -24,7 +35,14 @@ public class CookieClickerGame extends Game {
         batch = new SpriteBatch();
         font = FontUtil.KOMIKA;
 
-        setScreen(new MenuScreen(this));
+        screenContext = new ScreenContext();
+        screenContext.setCreditsScreen(new CreditsScreen(this));
+        screenContext.setExitScreen(new ExitScreen(this));
+        screenContext.setGameScreen(new GameScreen(this));
+        screenContext.setMenuScreen(new MenuScreen(this));
+        screenContext.setSettingsScreen(new SettingsScreen(this));
+        
+        setScreen(screenContext.getMenuScreen());
     }
 
     @Override

@@ -18,7 +18,7 @@
  *
  */
 
-package de.cerus.cookieclicker.fixes;
+package de.cerus.cookieclicker.ui.other;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 

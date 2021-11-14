@@ -1,6 +1,6 @@
-package de.cerus.cookieclicker.objects;
+package de.cerus.cookieclicker.ui.other.component;
 
-public class MiniCookie {
+public class CookieUI {
 
     private float x;
 
@@ -8,7 +8,7 @@ public class MiniCookie {
 
     private float rotation;
 
-    public MiniCookie(float x, float y, float rotation) {
+    public CookieUI(float x, float y, float rotation) {
         this.x = x;
         this.y = y;
         this.rotation = rotation;

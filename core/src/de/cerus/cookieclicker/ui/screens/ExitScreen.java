@@ -18,7 +18,7 @@
  *
  */
 
-package de.cerus.cookieclicker.screens;
+package de.cerus.cookieclicker.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -26,7 +26,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.Array;
 import de.cerus.cookieclicker.CookieClickerGame;
-import de.cerus.cookieclicker.components.Menu;
+import de.cerus.cookieclicker.ui.other.Menu;
 
 public class ExitScreen implements Screen {
 
@@ -56,7 +56,7 @@ public class ExitScreen implements Screen {
                 Gdx.app.exit();
                 return;
             }
-            game.setScreen(new MenuScreen(game));
+            game.setScreen(game.getScreenContext().getMenuScreen());
         });
     }
 

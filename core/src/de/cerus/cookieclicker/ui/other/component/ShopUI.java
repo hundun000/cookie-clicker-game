@@ -18,7 +18,7 @@
  *
  */
 
-package de.cerus.cookieclicker.objects;
+package de.cerus.cookieclicker.ui.other.component;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -29,10 +29,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import de.cerus.cookieclicker.CookieClickerGame;
-import de.cerus.cookieclicker.fixes.CustomShapeRenderer;
+import de.cerus.cookieclicker.model.ModelContext;
+import de.cerus.cookieclicker.model.ShopModel;
+import de.cerus.cookieclicker.ui.other.CustomShapeRenderer;
 import de.cerus.cookieclicker.util.FontUtil;
+import lombok.Setter;
 
-public class Shop implements Disposable {
+public class ShopUI implements Disposable {
 
     public static final int MAX_CLICKER = 54;
     public static final int MAX_GRANDMAS = 20;
@@ -40,7 +43,8 @@ public class Shop implements Disposable {
     public static final int MAX_FACTORIES = 20;
 
     private CustomShapeRenderer shapeRenderer = new CustomShapeRenderer();
-    private boolean visible = false;
+    
+    ShopModel model;
 
     private Texture closeTexture = new Texture(Gdx.files.internal("close.png"));
     private Texture buyTexture = new Texture(Gdx.files.internal("buy.png"));
@@ -60,15 +64,15 @@ public class Shop implements Disposable {
     private float buyFactoryButtonWidth = buyTexture.getWidth();
     private float buyFactoryButtonHeight = buyTexture.getHeight();
 
+    @Setter
     private float animationAlpha = 0.0f;
-    private long cookies = 0;
-    private long clicker = 0;
-    private long grandmas = 0;
-    private long bakeries = 0;
-    private long factories = 0;
+
+    public ShopUI(ModelContext modelContext) {
+        this.model = new ShopModel(this, modelContext);
+    }
 
     public void render(CookieClickerGame game, OrthographicCamera camera) {
-        if (!visible) {
+        if (!model.isVisible()) {
             return;
         }
 
@@ -110,13 +114,13 @@ public class Shop implements Disposable {
         );
         game.getBatch().setColor(1, 1, 1, 1);
 
-        if (clicker >= MAX_CLICKER || cookies < 5) {
+        if (model.getClicker() >= MAX_CLICKER || model.getCookies() < 5) {
             FontUtil.KOMIKA.setColor(Color.RED);
             game.getBatch().setColor(game.getBatch().getColor().add(0, 0, 0, -0.5f));
         }
         FontUtil.KOMIKA.draw(
                 game.getBatch(),
-                "Clicker: " + clicker + " / " + MAX_CLICKER + " [Cost: 5]",
+                "Clicker: " + model.getClicker() + " / " + MAX_CLICKER + " [Cost: 5]",
                 camera.position.x - (camera.viewportWidth / 2.2f) + 20,
                 camera.position.y + (camera.viewportHeight / 2.2f) - 30
         );
@@ -136,13 +140,13 @@ public class Shop implements Disposable {
         );
         game.getBatch().setColor(Color.WHITE);
 
-        if (grandmas >= MAX_GRANDMAS || cookies < 100) {
+        if (model.getGrandmas() >= MAX_GRANDMAS || model.getCookies() < 100) {
             FontUtil.KOMIKA.setColor(Color.RED);
             game.getBatch().setColor(game.getBatch().getColor().add(0, 0, 0, -0.5f));
         }
         FontUtil.KOMIKA.draw(
                 game.getBatch(),
-                "Grandma: " + grandmas + " / " + MAX_GRANDMAS + " [Cost: 100]",
+                "Grandma: " + model.getGrandmas() + " / " + MAX_GRANDMAS + " [Cost: 100]",
                 camera.position.x - (camera.viewportWidth / 2.2f) + 20,
                 camera.position.y + (camera.viewportHeight / 2.2f) - 60
         );
@@ -162,13 +166,13 @@ public class Shop implements Disposable {
         );
         game.getBatch().setColor(Color.WHITE);
 
-        if (bakeries >= MAX_BAKERIES || cookies < 250) {
+        if (model.getBakeries() >= MAX_BAKERIES || model.getCookies() < 250) {
             FontUtil.KOMIKA.setColor(Color.RED);
             game.getBatch().setColor(game.getBatch().getColor().add(0, 0, 0, -0.5f));
         }
         FontUtil.KOMIKA.draw(
                 game.getBatch(),
-                "Bakery: " + bakeries + " / " + MAX_BAKERIES + " [Cost: 250]",
+                "Bakery: " + model.getBakeries() + " / " + MAX_BAKERIES + " [Cost: 250]",
                 camera.position.x - (camera.viewportWidth / 2.2f) + 20,
                 camera.position.y + (camera.viewportHeight / 2.2f) - 90
         );
@@ -188,13 +192,13 @@ public class Shop implements Disposable {
         );
         game.getBatch().setColor(Color.WHITE);
 
-        if (factories >= MAX_FACTORIES || cookies < 1000) {
+        if (model.getFactories() >= MAX_FACTORIES || model.getCookies() < 1000) {
             FontUtil.KOMIKA.setColor(Color.RED);
             game.getBatch().setColor(game.getBatch().getColor().add(0, 0, 0, -0.5f));
         }
         FontUtil.KOMIKA.draw(
                 game.getBatch(),
-                "Factory: " + factories + " / " + MAX_FACTORIES + " [Cost: 1000]",
+                "Factory: " + model.getFactories() + " / " + MAX_FACTORIES + " [Cost: 1000]",
                 camera.position.x - (camera.viewportWidth / 2.2f) + 20,
                 camera.position.y + (camera.viewportHeight / 2.2f) - 120
         );
@@ -217,18 +221,39 @@ public class Shop implements Disposable {
         game.getBatch().end();
 
 
+        
+    }
+
+    private Vector2 getUnprojectedScreenCoords(Camera camera, float minus) {
+        Vector3 screenCoords = new Vector3();
+        screenCoords.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(screenCoords);
+
+        return new Vector2(screenCoords.x - minus, screenCoords.y - minus);
+    }
+
+
+
+    @Override
+    public void dispose() {
+        shapeRenderer.dispose();
+        closeTexture.dispose();
+        buyTexture.dispose();
+    }
+
+    public void inputLogicFrame(Camera camera) {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
                 && closeRepresentation.contains(getUnprojectedScreenCoords(camera, 0))
                 || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            setVisible(false);
+            model.setVisible(false);
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
                 && buyClickerRepresentation.contains(getUnprojectedScreenCoords(camera, 0))
-                && clicker < MAX_CLICKER
-                && cookies >= 5) {
-            cookies -= 5;
-            clicker++;
+                && model.getClicker() < MAX_CLICKER
+                && model.getCookies() >= 5) {
+            model.setCookies(model.getCookies() - 5);
+            model.setClicker(model.getClicker() + 1);
 
             buyClickerButtonHeight -= 5;
             buyClickerButtonWidth -= 5;
@@ -241,10 +266,10 @@ public class Shop implements Disposable {
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
                 && buyGrandmaRepresentation.contains(getUnprojectedScreenCoords(camera, 0))
-                && grandmas < MAX_GRANDMAS
-                && cookies >= 100) {
-            cookies -= 100;
-            grandmas++;
+                && model.getGrandmas() < MAX_GRANDMAS
+                && model.getCookies() >= 100) {
+            model.setCookies(model.getCookies() - 100);
+            model.setGrandmas(model.getGrandmas() + 1);
 
             buyGrandmaButtonHeight -= 5;
             buyGrandmaButtonWidth -= 5;
@@ -257,10 +282,10 @@ public class Shop implements Disposable {
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
                 && buyBakeryRepresentation.contains(getUnprojectedScreenCoords(camera, 0))
-                && bakeries < MAX_BAKERIES
-                && cookies >= 250) {
-            cookies -= 250;
-            bakeries++;
+                && model.getBakeries() < MAX_BAKERIES
+                && model.getCookies() >= 250) {
+            model.setCookies(model.getCookies() - 250);
+            model.setBakeries(model.getBakeries() + 1);
 
             buyBakeryButtonHeight -= 5;
             buyBakeryButtonWidth -= 5;
@@ -273,10 +298,10 @@ public class Shop implements Disposable {
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)
                 && buyFactoryRepresentation.contains(getUnprojectedScreenCoords(camera, 0))
-                && factories < MAX_FACTORIES
-                && cookies >= 1000) {
-            cookies -= 1000;
-            factories++;
+                && model.getFactories() < MAX_FACTORIES
+                && model.getCookies() >= 1000) {
+            model.setCookies(model.getCookies() - 1000);
+            model.setFactories(model.getFactories() + 1);
 
             buyFactoryButtonHeight -= 5;
             buyFactoryButtonWidth -= 5;
@@ -286,71 +311,5 @@ public class Shop implements Disposable {
             buyFactoryButtonWidth = buyTexture.getWidth();
             buyFactoryButtonHeight = buyTexture.getHeight();
         }
-    }
-
-    private Vector2 getUnprojectedScreenCoords(Camera camera, float minus) {
-        Vector3 screenCoords = new Vector3();
-        screenCoords.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-        camera.unproject(screenCoords);
-
-        return new Vector2(screenCoords.x - minus, screenCoords.y - minus);
-    }
-
-    public boolean isNotVisible() {
-        return !visible;
-    }
-
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-        if (visible) {
-            animationAlpha = 1.0f;
-        }
-    }
-
-    public long getClicker() {
-        return clicker;
-    }
-
-    public void setClicker(long clicker) {
-        this.clicker = clicker;
-    }
-
-    public long getCookies() {
-        return cookies;
-    }
-
-    public void setCookies(long cookies) {
-        this.cookies = cookies;
-    }
-
-    public long getGrandmas() {
-        return grandmas;
-    }
-
-    public void setGrandmas(long grandmas) {
-        this.grandmas = grandmas;
-    }
-
-    public long getBakeries() {
-        return bakeries;
-    }
-
-    public void setBakeries(long bakeries) {
-        this.bakeries = bakeries;
-    }
-
-    public long getFactories() {
-        return factories;
-    }
-
-    public void setFactories(long factories) {
-        this.factories = factories;
-    }
-
-    @Override
-    public void dispose() {
-        shapeRenderer.dispose();
-        closeTexture.dispose();
-        buyTexture.dispose();
     }
 }

@@ -18,7 +18,7 @@
  *
  */
 
-package de.cerus.cookieclicker.screens;
+package de.cerus.cookieclicker.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -78,7 +78,7 @@ public class CreditsScreen implements Screen {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new MenuScreen(game));
+            game.setScreen(game.getScreenContext().getMenuScreen());
         } else if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             Vector3 vec = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(vec);

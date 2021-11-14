@@ -18,7 +18,7 @@
  *
  */
 
-package de.cerus.cookieclicker.screens;
+package de.cerus.cookieclicker.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -26,47 +26,35 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.Array;
 import de.cerus.cookieclicker.CookieClickerGame;
-import de.cerus.cookieclicker.components.Menu;
+import de.cerus.cookieclicker.ui.other.Menu;
 
-public class MenuScreen implements Screen {
+public class SettingsScreen implements Screen {
 
     private CookieClickerGame game;
     private OrthographicCamera camera;
     private Menu<String> menu;
 
-    private GlyphLayout menuText;
+    private GlyphLayout exitText;
 
-    public MenuScreen(CookieClickerGame game) {
+    public SettingsScreen(CookieClickerGame game) {
         this.game = game;
         this.camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         this.menu = new Menu<>(game.getFont(), new Array<String>() {
             {
-                add("Play");
-                add("Settings");
-                add("Credits");
-                add("Exit");
+                add("Setting 1");
+                add("Setting 2");
+                add("Go back");
             }
         });
-        this.menuText = new GlyphLayout(game.getFont(), "Menu");
+        this.exitText = new GlyphLayout(game.getFont(), "Settings");
     }
 
     @Override
     public void show() {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         menu.setOnAction(s -> {
-            switch (s) {
-                case "Play":
-                    game.setScreen(new GameScreen(game));
-                    break;
-                case "Settings":
-                    game.setScreen(new SettingsScreen(game));
-                    break;
-                case "Credits":
-                    game.setScreen(new CreditsScreen(game));
-                    break;
-                case "Exit":
-                    game.setScreen(new ExitScreen(game));
-                    break;
+            if (s.equals("Go back")) {
+                game.setScreen(game.getScreenContext().getMenuScreen());
             }
         });
     }
@@ -76,7 +64,7 @@ public class MenuScreen implements Screen {
         game.getBatch().setProjectionMatrix(camera.combined);
         game.getBatch().begin();
 
-        game.getFont().draw(game.getBatch(), menuText, camera.viewportWidth / 2f - (menuText.width / 2f),
+        game.getFont().draw(game.getBatch(), exitText, camera.viewportWidth / 2f - (exitText.width / 2f),
                 camera.viewportHeight - 50);
 
         menu.render(game.getBatch(), true, true, camera.viewportWidth / 2f,
